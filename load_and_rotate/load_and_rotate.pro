@@ -1,4 +1,5 @@
-QT       += core gui
+QT       += core gui\
+            gui-private
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,10 +11,12 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    meshrenderer.cpp
 
 HEADERS += \
     mainwindow.h \
+    meshrenderer.h \
     tiny_obj_loader.h
 
 FORMS += \
