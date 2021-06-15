@@ -5,8 +5,14 @@
 class meshrenderer
 {
 public:
+    void setRhi(QRhi *r) { m_r = r; }
+    void setSampleCount(int samples) { m_sampleCount = samples; }
+    void setTranslation(const QVector3D &v) { m_translation = v; }
     void initResources(QRhiRenderPassDescriptor *rp, float *vertexData);
-    void queueDraw(QRhiCommandBuffer *cb, const QSize &outputSizeInPixels);
+    void releaseResources();
+    void resize(const QSize &pixelSize);
+    void queueResourceUpdates(QRhiResourceUpdateBatch *resourceUpdates, float *vertexData);
+    void queueDraw(QRhiCommandBuffer *cb, const QSize &outputSizeInPixels, int vertexSize);
 
 private:
     QRhi *m_r;
@@ -14,11 +20,15 @@ private:
     QRhiBuffer *m_vbuf = nullptr;
     bool m_vbufReady = false;
     QRhiBuffer *m_ubuf = nullptr;
+    QImage m_image;
+    QRhiTexture *m_tex = nullptr;
+    QRhiSampler *m_sampler = nullptr;
     QRhiShaderResourceBindings *m_srb = nullptr;
     QRhiGraphicsPipeline *m_ps = nullptr;
 
-    bool m_depthWrite = false;
-    int m_colorAttCount = 1;
+    QVector3D m_translation;
+    QMatrix4x4 m_proj;
+    float m_rotation = 0;
     int m_sampleCount = 1; // no MSAA by default
 };
 
