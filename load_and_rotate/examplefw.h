@@ -71,7 +71,7 @@
 #endif
 
 #if QT_CONFIG(vulkan)
-//#include <QtGui/private/qrhivulkan_p.h>
+#include <QtGui/private/qrhivulkan_p.h>
 #endif
 
 #ifdef Q_OS_WIN
@@ -276,10 +276,10 @@ void Window::init()
 
 #if QT_CONFIG(vulkan)
     if (graphicsApi == Vulkan) {
-        //QRhiVulkanInitParams params;
-        //params.inst = vulkanInstance();
-        //params.window = this;
-        //m_r = QRhi::create(QRhi::Vulkan, &params, rhiFlags);
+        QRhiVulkanInitParams params;
+        params.inst = vulkanInstance();
+        params.window = this;
+        m_r = QRhi::create(QRhi::Vulkan, &params, rhiFlags);
     }
 #endif
 
@@ -320,12 +320,12 @@ void Window::init()
     m_rp = m_sc->newCompatibleRenderPassDescriptor();
     m_sc->setRenderPassDescriptor(m_rp);
 
-    customInit();
+    //customInit();
 }
 
 void Window::releaseResources()
 {
-    customRelease();
+    //customRelease();
 
     delete m_rp;
     m_rp = nullptr;
@@ -428,7 +428,7 @@ void Window::render()
         m_frameCount = 0;
     }
 
-    customRender();
+    //customRender();
 
     m_r->endFrame(m_sc, endFrameFlags);
 
@@ -438,7 +438,7 @@ void Window::render()
         QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
 }
 
-int main(int argc, char **argv)
+/*int main(int argc, char **argv)
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
@@ -560,4 +560,4 @@ int main(int argc, char **argv)
         w.releaseSwapChain();
 
     return ret;
-}
+}*/

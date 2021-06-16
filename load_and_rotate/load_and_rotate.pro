@@ -20,9 +20,6 @@ HEADERS += \
     tiny_obj_loader.h \
     examplefw.h
 
-FORMS += \
-    mainwindow.ui
-
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
@@ -32,5 +29,4 @@ RESOURCES += \
     texture.frag \
     texture.frag.qsb \
     texture.vert \
-    texture.vert.qsb \
-    ponte.obj
+    texture.vert.qsb

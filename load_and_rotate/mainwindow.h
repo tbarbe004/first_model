@@ -1,21 +1,39 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+#include <QGuiApplication>
+#include <QCommandLineParser>
+#include <QWindow>
+#include <QPlatformSurfaceEvent>
+#include <QElapsedTimer>
+#include <QTimer>
+#include <QLoggingCategory>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+#include <QtGui/private/qshader_p.h>
+#include <QFile>
+#include <QtGui/private/qrhiprofiler_p.h>
+#include <QtGui/private/qrhinull_p.h>
 
-class MainWindow : public QMainWindow
+#ifndef QT_NO_OPENGL
+#include <QtGui/private/qrhigles2_p.h>
+#include <QOffscreenSurface>
+#endif
+
+class Window : public QWindow
 {
-    Q_OBJECT
-
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    Window();
+    ~Window();
+    QOffscreenSurface *m_fallbackSurface = nullptr;
+    QRhi *m_r = nullptr;
+    QRhiSwapChain *m_sc = nullptr;
+    QRhiRenderBuffer *m_ds = nullptr;
+    QRhiRenderPassDescriptor *m_rp = nullptr;
+    QRhi::Flags rhiFlags = QRhi::EnableDebugMarkers;
+    int sampleCount = 1;
+    QRhiSwapChain::Flags scFlags;
 
-private:
-    Ui::MainWindow *ui;
 };
+
+
 #endif // MAINWINDOW_H
