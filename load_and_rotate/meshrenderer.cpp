@@ -16,9 +16,9 @@ static QShader getShader(const QString &name)
     return QShader();
 }
 
-void meshrenderer::initResources(QRhiRenderPassDescriptor *rp, float *vertexData)
+void meshrenderer::initResources(QRhiRenderPassDescriptor *rp, int vertexSize)
 {
-    m_vbuf = m_r->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, sizeof(vertexData));
+    m_vbuf = m_r->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, vertexSize);
     m_vbuf->setName(QByteArrayLiteral("Cube vbuf (textured)"));
     m_vbuf->build();
     m_vbufReady = false;

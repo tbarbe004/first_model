@@ -438,7 +438,7 @@ void Window::render()
         QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
 }
 
-/*int main(int argc, char **argv)
+int main(int argc, char **argv)
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
@@ -560,4 +560,4 @@ void Window::render()
         w.releaseSwapChain();
 
     return ret;
-}*/
+}

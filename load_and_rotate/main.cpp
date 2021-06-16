@@ -290,14 +290,9 @@ int main(int argc, char *argv[])
     #ifdef PROFILE_TO_FILE
         m_r->profiler()->setDevice(&d.profOut);
     #endif
-    QApplication a(argc, argv);
-    Window w;
+    QGuiApplication a(argc, argv);
+    Window w(data);
 
-    meshrenderer m ;
-
-    m.setRhi(w.m_r);
-    m.setSampleCount(w.sampleCount);
-    m.initResources(w.m_rp, data);
 
 
     //free(data);
