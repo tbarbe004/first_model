@@ -42,7 +42,7 @@ float* attrib_to_data(tinyobj::ObjReader reader, std::string inputfile, tinyobj:
       }
     }
 
-    float* data = (float *) malloc(data_length * sizeof(float));
+    float* data = (float *) malloc(18900 * sizeof(float));
 
     int cursor = 0;
 

@@ -87,20 +87,20 @@ float * getmesh()
 
         float * data = attrib_to_data(reader, inputfile, reader_config);
 
-        for(int i=0; i < 100; i++){
-                    std::cout << "data : " << data[i] ;
-        }
+            //std::cout << "data : " << i << "is " << data[i] << "\n" ;
 
         return data;
 }
 
-//static const float *mesh = getmesh();
-
-//static const float *mesh = cube;
-
 void meshrenderer::initResources(QRhiRenderPassDescriptor *rp)
 {
-    m_vbuf = m_r->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, sizeof(cube));
+    float mesh[18900];
+    float *data = getmesh();
+    for(int i=0; i<18900; i++){
+        mesh[i] = data[i];
+    }
+
+    m_vbuf = m_r->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, sizeof(mesh));
     m_vbuf->setName(QByteArrayLiteral("Cube vbuf (textured)"));
     m_vbuf->build();
     m_vbufReady = false;
@@ -204,9 +204,14 @@ void meshrenderer::releaseResources()
 
 void meshrenderer::queueResourceUpdates(QRhiResourceUpdateBatch *resourceUpdates)
 {
+    float mesh[18900];
+    float *data = getmesh();
+    for(int i=0; i<18900; i++){
+        mesh[i] = data[i];
+    }
     if (!m_vbufReady) {
         m_vbufReady = true;
-        resourceUpdates->uploadStaticBuffer(m_vbuf, cube);
+        resourceUpdates->uploadStaticBuffer(m_vbuf, mesh);
         qint32 flip = 0;
         resourceUpdates->updateDynamicBuffer(m_ubuf, 64, 4, &flip);
     }
@@ -237,7 +242,7 @@ void meshrenderer::queueResourceUpdates(QRhiResourceUpdateBatch *resourceUpdates
     m_rotation += 1.0f;
     QMatrix4x4 mvp = m_proj;
     mvp.translate(m_translation);
-    mvp.scale(0.5f);
+    mvp.scale(0.2f);
     mvp.rotate(m_rotation, 0, 1, 0);
     resourceUpdates->updateDynamicBuffer(m_ubuf, 0, 64, mvp.constData());
 }
