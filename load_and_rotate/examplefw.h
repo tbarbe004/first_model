@@ -320,12 +320,12 @@ void Window::init()
     m_rp = m_sc->newCompatibleRenderPassDescriptor();
     m_sc->setRenderPassDescriptor(m_rp);
 
-    //customInit();
+    customInit();
 }
 
 void Window::releaseResources()
 {
-    //customRelease();
+    customRelease();
 
     delete m_rp;
     m_rp = nullptr;
@@ -428,7 +428,7 @@ void Window::render()
         m_frameCount = 0;
     }
 
-    //customRender();
+    customRender();
 
     m_r->endFrame(m_sc, endFrameFlags);
 
@@ -527,7 +527,30 @@ int main(int argc, char **argv)
         fmt.setAlphaBufferSize(8);
     QSurfaceFormat::setDefaultFormat(fmt);
 
-
+    // Vulkan setup.
+#if QT_CONFIG(vulkan)
+    QVulkanInstance inst;
+    if (graphicsApi == Vulkan) {
+#ifndef Q_OS_ANDROID
+        inst.setLayers(QByteArrayList() << "VK_LAYER_LUNARG_standard_validation");
+#else
+        inst.setLayers(QByteArrayList()
+                       << "VK_LAYER_GOOGLE_threading"
+                       << "VK_LAYER_LUNARG_parameter_validation"
+                       << "VK_LAYER_LUNARG_object_tracker"
+                       << "VK_LAYER_LUNARG_core_validation"
+                       << "VK_LAYER_LUNARG_image"
+                       << "VK_LAYER_LUNARG_swapchain"
+                       << "VK_LAYER_GOOGLE_unique_objects");
+#endif
+        inst.setExtensions(QByteArrayList()
+                           << "VK_KHR_get_physical_device_properties2");
+        if (!inst.create()) {
+            qWarning("Failed to create Vulkan instance, switching to OpenGL");
+            graphicsApi = OpenGL;
+        }
+    }
+#endif
 
     if (cmdLineParser.isSet(tdrOption))
         framesUntilTdr = cmdLineParser.value(tdrOption).toInt();
@@ -538,8 +561,8 @@ int main(int argc, char **argv)
     // Create and show the window.
     Window w;
 #if QT_CONFIG(vulkan)
-    //if (graphicsApi == Vulkan)
-        //1w.setVulkanInstance(&inst);
+    if (graphicsApi == Vulkan)
+        w.setVulkanInstance(&inst);
 #endif
     w.resize(1280, 720);
     w.setTitle(QCoreApplication::applicationName() + QLatin1String(" - ") + graphicsApiName());

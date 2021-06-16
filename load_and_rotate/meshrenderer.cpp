@@ -1,8 +1,58 @@
+/****************************************************************************
+**
+** Copyright (C) 2018 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the examples of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:BSD$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** BSD License Usage
+** Alternatively, you may use this file under the terms of the BSD license
+** as follows:
+**
+** "Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions are
+** met:
+**   * Redistributions of source code must retain the above copyright
+**     notice, this list of conditions and the following disclaimer.
+**   * Redistributions in binary form must reproduce the above copyright
+**     notice, this list of conditions and the following disclaimer in
+**     the documentation and/or other materials provided with the
+**     distribution.
+**   * Neither the name of The Qt Company Ltd nor the names of its
+**     contributors may be used to endorse or promote products derived
+**     from this software without specific prior written permission.
+**
+**
+** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
 #include "meshrenderer.h"
 #include <QFile>
 #include <QtGui/private/qshader_p.h>
 
-//#define VBUF_IS_DYNAMIC
+#include "../../qtbase/tests/manual/rhi/shared/cube.h"
 
 const bool MIPMAP = true;
 const bool AUTOGENMIPMAP = true;
@@ -16,9 +66,41 @@ static QShader getShader(const QString &name)
     return QShader();
 }
 
-void meshrenderer::initResources(QRhiRenderPassDescriptor *rp, int vertexSize)
+float * getmesh()
 {
-    m_vbuf = m_r->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, vertexSize);
+    std::string inputfile = "ponte.obj";
+        tinyobj::ObjReaderConfig reader_config;
+        reader_config.mtl_search_path = "./"; // Path to material files
+
+        tinyobj::ObjReader reader;
+
+        if (!reader.ParseFromFile(inputfile, reader_config)) {
+          if (!reader.Error().empty()) {
+              std::cerr << "TinyObjReader: " << reader.Error();
+          }
+          exit(1);
+        }
+
+        if (!reader.Warning().empty()) {
+          std::cout << "TinyObjReader: " << reader.Warning();
+        }
+
+        float * data = attrib_to_data(reader, inputfile, reader_config);
+
+        for(int i=0; i < 100; i++){
+                    std::cout << "data : " << data[i] ;
+        }
+
+        return data;
+}
+
+//static const float *mesh = getmesh();
+
+//static const float *mesh = cube;
+
+void meshrenderer::initResources(QRhiRenderPassDescriptor *rp)
+{
+    m_vbuf = m_r->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, sizeof(cube));
     m_vbuf->setName(QByteArrayLiteral("Cube vbuf (textured)"));
     m_vbuf->build();
     m_vbufReady = false;
@@ -120,11 +202,11 @@ void meshrenderer::releaseResources()
     m_vbuf = nullptr;
 }
 
-void meshrenderer::queueResourceUpdates(QRhiResourceUpdateBatch *resourceUpdates, float *vertexData)
+void meshrenderer::queueResourceUpdates(QRhiResourceUpdateBatch *resourceUpdates)
 {
     if (!m_vbufReady) {
         m_vbufReady = true;
-        resourceUpdates->uploadStaticBuffer(m_vbuf, vertexData);
+        resourceUpdates->uploadStaticBuffer(m_vbuf, cube);
         qint32 flip = 0;
         resourceUpdates->updateDynamicBuffer(m_ubuf, 64, 4, &flip);
     }
@@ -160,15 +242,16 @@ void meshrenderer::queueResourceUpdates(QRhiResourceUpdateBatch *resourceUpdates
     resourceUpdates->updateDynamicBuffer(m_ubuf, 0, 64, mvp.constData());
 }
 
-void meshrenderer::queueDraw(QRhiCommandBuffer *cb, const QSize &outputSizeInPixels, int vertexSize)
+void meshrenderer::queueDraw(QRhiCommandBuffer *cb, const QSize &outputSizeInPixels)
 {
     cb->setGraphicsPipeline(m_ps);
     cb->setViewport(QRhiViewport(0, 0, outputSizeInPixels.width(), outputSizeInPixels.height()));
     cb->setShaderResources();
     const QRhiCommandBuffer::VertexInput vbufBindings[] = {
         { m_vbuf, 0 },
-        { m_vbuf, vertexSize * 3 * sizeof(float) }
+        { m_vbuf, 36 * 3 * sizeof(float) }
     };
     cb->setVertexInput(0, 2, vbufBindings);
-    cb->draw(vertexSize);
+    cb->draw(36);
 }
+
