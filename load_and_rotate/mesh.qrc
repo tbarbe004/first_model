@@ -1,7 +1,9 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-  <file alias="texture.vert.qsb">ressources/texture.vert.qsb</file>
-  <file alias="texture.frag.qsb">ressources/texture.frag.qsb</file>
-  <file alias="qt256.png">ressources/Pierre.jpg</file>
-</qresource>
+<RCC>
+    <qresource prefix="/">
+        <file alias="texture.vert.qsb">ressources/texture.vert.qsb</file>
+        <file alias="texture.frag.qsb">ressources/texture.frag.qsb</file>
+        <file alias="qt256.png">ressources/Pierre.jpg</file>
+        <file alias="texture.vert">ressources/texture.vert</file>
+        <file alias="texture.frag">ressources/texture.frag</file>
+    </qresource>
 </RCC>
