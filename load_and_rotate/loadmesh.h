@@ -5,7 +5,7 @@
 #include <QApplication>
 
 struct data{
-    float * values;
+    std::vector<float> values;
     unsigned long vertices_length;
     unsigned long texture_length;
 };

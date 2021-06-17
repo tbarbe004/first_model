@@ -96,12 +96,8 @@ void meshrenderer::initResources(QRhiRenderPassDescriptor *rp)
 {
 
     struct data d = getmesh();
-    float mesh[(int) (d.vertices_length + d.texture_length)];
-    for(int i=0; i<(int) (d.vertices_length + d.texture_length); i++){
-        mesh[i] = d.values[i];
-    }
 
-    m_vbuf = m_r->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, sizeof(mesh));
+    m_vbuf = m_r->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, sizeof(d.values));
     m_vbuf->setName(QByteArrayLiteral("Cube vbuf (textured)"));
     m_vbuf->build();
     m_vbufReady = false;
@@ -207,13 +203,10 @@ void meshrenderer::queueResourceUpdates(QRhiResourceUpdateBatch *resourceUpdates
 {
 
     struct data d = getmesh();
-    float mesh[(int) (d.vertices_length + d.texture_length)];
-    for(int i=0; i<(int) (d.vertices_length + d.texture_length); i++){
-        mesh[i] = d.values[i];
-    }
+
     if (!m_vbufReady) {
         m_vbufReady = true;
-        resourceUpdates->uploadStaticBuffer(m_vbuf, mesh);
+        resourceUpdates->uploadStaticBuffer(m_vbuf, d.values.data());
         qint32 flip = 0;
         resourceUpdates->updateDynamicBuffer(m_ubuf, 64, 4, &flip);
     }
@@ -260,6 +253,6 @@ void meshrenderer::queueDraw(QRhiCommandBuffer *cb, const QSize &outputSizeInPix
         { m_vbuf, d.vertices_length * sizeof(float) }
     };
     cb->setVertexInput(0, 2, vbufBindings);
-    cb->draw(d.vertices_length/3);
+    cb->draw(d.vertices_length);
 }
 

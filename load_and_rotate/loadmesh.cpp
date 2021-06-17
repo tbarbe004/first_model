@@ -45,7 +45,7 @@ struct data attrib_to_data(tinyobj::ObjReader reader, std::string inputfile, tin
       }
     }
 
-    float* val = (float *) malloc((vertices_length + texture_length) * sizeof(float));
+    std::vector<float> val(vertices_length + texture_length);
 
     int cursor_vertices = 0;
     int cursor_texture = 0;
