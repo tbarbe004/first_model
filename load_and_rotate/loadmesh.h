@@ -4,6 +4,12 @@
 #include <iostream>
 #include <QApplication>
 
-float* attrib_to_data(tinyobj::ObjReader reader, std::string inputfile, tinyobj::ObjReaderConfig reader_config);
+struct data{
+    float * values;
+    unsigned long vertices_length;
+    unsigned long texture_length;
+};
+
+struct data attrib_to_data(tinyobj::ObjReader reader, std::string inputfile, tinyobj::ObjReaderConfig reader_config);
 
 #endif // LOADMESH_H

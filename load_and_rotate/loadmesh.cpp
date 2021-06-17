@@ -1,7 +1,9 @@
 #define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
 #include "loadmesh.h"
 
-float* attrib_to_data(tinyobj::ObjReader reader, std::string inputfile, tinyobj::ObjReaderConfig reader_config){
+
+
+struct data attrib_to_data(tinyobj::ObjReader reader, std::string inputfile, tinyobj::ObjReaderConfig reader_config){
     if (!reader.ParseFromFile(inputfile, reader_config)) {
       if (!reader.Error().empty()) {
           std::cerr << "TinyObjReader: " << reader.Error();
@@ -16,7 +18,8 @@ float* attrib_to_data(tinyobj::ObjReader reader, std::string inputfile, tinyobj:
     auto& attrib = reader.GetAttrib();
     auto& shapes = reader.GetShapes();
 
-    unsigned long data_length = 0;
+    unsigned long vertices_length = 0;
+    unsigned long texture_length = 0;
 
     for (size_t s = 0; s < shapes.size(); s++) {
       size_t index_offset = 0;
@@ -27,14 +30,14 @@ float* attrib_to_data(tinyobj::ObjReader reader, std::string inputfile, tinyobj:
         for (size_t v = 0; v < fv; v++) {
 
           tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
-          data_length += 3;
-          if (idx.normal_index >= 0) {
+          vertices_length += 3;
+          /*if (idx.normal_index >= 0) {
               data_length += 3;
 
-          }
+          }*/
 
           if (idx.texcoord_index >= 0) {
-              data_length += 2;
+              texture_length += 2;
           }
 
          }
@@ -42,9 +45,10 @@ float* attrib_to_data(tinyobj::ObjReader reader, std::string inputfile, tinyobj:
       }
     }
 
-    float* data = (float *) malloc(18900 * sizeof(float));
+    float* val = (float *) malloc((vertices_length + texture_length) * sizeof(float));
 
-    int cursor = 0;
+    int cursor_vertices = 0;
+    int cursor_texture = 0;
 
     for (size_t s = 0; s < shapes.size(); s++) {
       // Loop over faces(polygon)
@@ -56,11 +60,11 @@ float* attrib_to_data(tinyobj::ObjReader reader, std::string inputfile, tinyobj:
         for (size_t v = 0; v < fv; v++) {
           // access to vertex
           tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
-          data[cursor] = attrib.vertices[3*size_t(idx.vertex_index)+0];
-          data[cursor + 1] = attrib.vertices[3*size_t(idx.vertex_index)+1];
-          data[cursor + 2] = attrib.vertices[3*size_t(idx.vertex_index)+2];
+          val[cursor_vertices] = attrib.vertices[3*size_t(idx.vertex_index)+0];
+          val[cursor_vertices + 1] = attrib.vertices[3*size_t(idx.vertex_index)+1];
+          val[cursor_vertices + 2] = attrib.vertices[3*size_t(idx.vertex_index)+2];
 
-          cursor += 3;
+          cursor_vertices += 3;
 
           // Check if `normal_index` is zero or positive. negative = no normal data
           /*if (idx.normal_index >= 0) {
@@ -73,10 +77,10 @@ float* attrib_to_data(tinyobj::ObjReader reader, std::string inputfile, tinyobj:
 
           // Check if `texcoord_index` is zero or positive. negative = no texcoord data
           //if (idx.texcoord_index >= 0) {
-          data[cursor] = attrib.texcoords[2*size_t(idx.texcoord_index)+0];
-          data[cursor + 1] = attrib.texcoords[2*size_t(idx.texcoord_index)+1];
+          val[vertices_length + cursor_texture] = attrib.texcoords[2*size_t(idx.texcoord_index)+0];
+          val[vertices_length + cursor_texture + 1] = attrib.texcoords[2*size_t(idx.texcoord_index)+1];
 
-          cursor += 2;
+          cursor_texture += 2;
           //}
 
         }
@@ -85,6 +89,7 @@ float* attrib_to_data(tinyobj::ObjReader reader, std::string inputfile, tinyobj:
       }
     }
 
+    struct data d = {val, vertices_length, texture_length};
 
-    return data;
+    return d;
 }

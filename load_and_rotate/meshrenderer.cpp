@@ -66,7 +66,7 @@ static QShader getShader(const QString &name)
     return QShader();
 }
 
-float * getmesh()
+struct data getmesh()
 {
     std::string inputfile = "ponte.obj";
         tinyobj::ObjReaderConfig reader_config;
@@ -85,19 +85,20 @@ float * getmesh()
           std::cout << "TinyObjReader: " << reader.Warning();
         }
 
-        float * data = attrib_to_data(reader, inputfile, reader_config);
+        struct data d = attrib_to_data(reader, inputfile, reader_config);
 
             //std::cout << "data : " << i << "is " << data[i] << "\n" ;
 
-        return data;
+        return d;
 }
 
 void meshrenderer::initResources(QRhiRenderPassDescriptor *rp)
 {
-    float mesh[18900];
-    float *data = getmesh();
-    for(int i=0; i<18900; i++){
-        mesh[i] = data[i];
+
+    struct data d = getmesh();
+    float mesh[(int) (d.vertices_length + d.texture_length)];
+    for(int i=0; i<(int) (d.vertices_length + d.texture_length); i++){
+        mesh[i] = d.values[i];
     }
 
     m_vbuf = m_r->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, sizeof(mesh));
@@ -204,10 +205,11 @@ void meshrenderer::releaseResources()
 
 void meshrenderer::queueResourceUpdates(QRhiResourceUpdateBatch *resourceUpdates)
 {
-    float mesh[18900];
-    float *data = getmesh();
-    for(int i=0; i<18900; i++){
-        mesh[i] = data[i];
+
+    struct data d = getmesh();
+    float mesh[(int) (d.vertices_length + d.texture_length)];
+    for(int i=0; i<(int) (d.vertices_length + d.texture_length); i++){
+        mesh[i] = d.values[i];
     }
     if (!m_vbufReady) {
         m_vbufReady = true;
@@ -249,12 +251,13 @@ void meshrenderer::queueResourceUpdates(QRhiResourceUpdateBatch *resourceUpdates
 
 void meshrenderer::queueDraw(QRhiCommandBuffer *cb, const QSize &outputSizeInPixels)
 {
+    struct data d = getmesh();
     cb->setGraphicsPipeline(m_ps);
     cb->setViewport(QRhiViewport(0, 0, outputSizeInPixels.width(), outputSizeInPixels.height()));
     cb->setShaderResources();
     const QRhiCommandBuffer::VertexInput vbufBindings[] = {
         { m_vbuf, 0 },
-        { m_vbuf, 36 * 3 * sizeof(float) }
+        { m_vbuf, d.vertices_length * sizeof(float) }
     };
     cb->setVertexInput(0, 2, vbufBindings);
     cb->draw(36);
