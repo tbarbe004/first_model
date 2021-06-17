@@ -244,7 +244,7 @@ void meshrenderer::queueResourceUpdates(QRhiResourceUpdateBatch *resourceUpdates
     m_rotation += 1.0f;
     QMatrix4x4 mvp = m_proj;
     mvp.translate(m_translation);
-    mvp.scale(0.2f);
+    mvp.scale(0.05f);
     mvp.rotate(m_rotation, 0, 1, 0);
     resourceUpdates->updateDynamicBuffer(m_ubuf, 0, 64, mvp.constData());
 }
@@ -260,6 +260,6 @@ void meshrenderer::queueDraw(QRhiCommandBuffer *cb, const QSize &outputSizeInPix
         { m_vbuf, d.vertices_length * sizeof(float) }
     };
     cb->setVertexInput(0, 2, vbufBindings);
-    cb->draw(36);
+    cb->draw(d.vertices_length/3);
 }
 
