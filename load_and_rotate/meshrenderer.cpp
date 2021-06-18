@@ -52,8 +52,6 @@
 #include <QFile>
 #include <QtGui/private/qshader_p.h>
 
-#include "../../qtbase/tests/manual/rhi/shared/cube.h"
-
 const bool MIPMAP = true;
 const bool AUTOGENMIPMAP = true;
 
