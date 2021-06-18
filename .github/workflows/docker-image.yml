@@ -26,7 +26,9 @@ jobs:
 
       - name: Dependencies
         run: |
-          ./ci/archlinux.deps.sh
+          pacman -S qt5-base qt5-declarative qt5-multimedia qt5-quickcontrols qt5-quickcontrols2 qt5-imageformats make 
       - name: Build
         run: |
-          ./ci/archlinux.build.sh
+          cd load_and_rotate
+          qmake
+          make -j8
