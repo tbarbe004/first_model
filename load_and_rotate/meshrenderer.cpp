@@ -115,7 +115,7 @@ void meshrenderer::initResources(QRhiRenderPassDescriptor *rp)
     m_tex->build();
 
     m_sampler = m_r->newSampler(QRhiSampler::Linear, QRhiSampler::Linear, MIPMAP ? QRhiSampler::Linear : QRhiSampler::None,
-                                QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
+                                QRhiSampler::Repeat, QRhiSampler::Repeat);
     m_sampler->build();
 
     //add a buffer for the scale of the texture applied
@@ -216,8 +216,7 @@ void meshrenderer::queueResourceUpdates(QRhiResourceUpdateBatch *resourceUpdates
         m_vbufReady = true;
         resourceUpdates->uploadStaticBuffer(m_vbuf, d.values.data());
 
-        std::vector<float> scale(1);
-        scale[0] = 1.2;
+        float scale = 2;
 
         resourceUpdates->updateDynamicBuffer(m_scale, 0, 8, &scale);
         qint32 flip = 0;

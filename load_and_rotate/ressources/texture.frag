@@ -17,7 +17,7 @@ layout(std140, binding = 2) uniform s_buf {
 
 void main()
 {
-    vec2 v_newtexcoord = v_texcoord * scale_buf.scale;
+    vec2 v_newtexcoord = v_texcoord / scale_buf.scale;
     vec4 c = texture(tex, v_newtexcoord);
     fragColor = vec4(c.rgb * c.a, c.a);
 }
