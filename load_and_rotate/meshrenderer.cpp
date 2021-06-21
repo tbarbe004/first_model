@@ -95,7 +95,7 @@ void meshrenderer::initResources(QRhiRenderPassDescriptor *rp)
 
     struct data d = getmesh();
 
-    m_vbuf = m_r->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, sizeof(d.values));
+    m_vbuf = m_r->newBuffer(QRhiBuffer::Immutable, QRhiBuffer::VertexBuffer, d.values.size() * sizeof(float));
     m_vbuf->setName(QByteArrayLiteral("Cube vbuf (textured)"));
     m_vbuf->build();
     m_vbufReady = false;
@@ -248,9 +248,9 @@ void meshrenderer::queueDraw(QRhiCommandBuffer *cb, const QSize &outputSizeInPix
     cb->setShaderResources();
     const QRhiCommandBuffer::VertexInput vbufBindings[] = {
         { m_vbuf, 0 },
-        { m_vbuf, d.vertices_length * sizeof(float) }
+        { m_vbuf, d.vertices_length * 3 * sizeof(float) }
     };
     cb->setVertexInput(0, 2, vbufBindings);
-    cb->draw(d.vertices_length);
+    cb->draw(d.vertices_length/3);
 }
 
