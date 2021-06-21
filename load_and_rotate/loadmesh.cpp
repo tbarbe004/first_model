@@ -31,6 +31,9 @@ struct data attrib_to_data(tinyobj::ObjReader reader, std::string inputfile, tin
 
           tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
           vertices_length += 3;
+
+          // if there is coordinates for the normal vector :
+
           /*if (idx.normal_index >= 0) {
               data_length += 3;
 

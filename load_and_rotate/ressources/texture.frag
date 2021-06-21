@@ -11,8 +11,13 @@ layout(std140, binding = 0) uniform buf {
 
 layout(binding = 1) uniform sampler2D tex;
 
+layout(std140, binding = 2) uniform buf {
+    float scale;
+}scale_buf;
+
 void main()
 {
-    vec4 c = texture(tex, v_texcoord);
+    vec2 v_newtexcoord = v_texcoord * scale_buf.scale;
+    vec4 c = texture(tex, v_newtexcoord);
     fragColor = vec4(c.rgb * c.a, c.a);
 }

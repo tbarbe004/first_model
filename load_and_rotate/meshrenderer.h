@@ -21,6 +21,7 @@ private:
     QRhiBuffer *m_vbuf = nullptr;
     bool m_vbufReady = false;
     QRhiBuffer *m_ubuf = nullptr;
+    QRhiBuffer *m_scale = nullptr;
     QImage m_image;
     QRhiTexture *m_tex = nullptr;
     QRhiSampler *m_sampler = nullptr;

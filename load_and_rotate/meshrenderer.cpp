@@ -118,10 +118,17 @@ void meshrenderer::initResources(QRhiRenderPassDescriptor *rp)
                                 QRhiSampler::ClampToEdge, QRhiSampler::ClampToEdge);
     m_sampler->build();
 
+    //add a buffer for the scale of the texture applied
+    m_scale = m_r->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::UniformBuffer, sizeof(float));
+    m_scale->setName(QByteArrayLiteral("scale of the texture applied"));
+    m_scale->build();
+
     m_srb = m_r->newShaderResourceBindings();
     m_srb->setBindings({
         QRhiShaderResourceBinding::uniformBuffer(0, QRhiShaderResourceBinding::VertexStage | QRhiShaderResourceBinding::FragmentStage, m_ubuf),
-        QRhiShaderResourceBinding::sampledTexture(1, QRhiShaderResourceBinding::FragmentStage, m_tex, m_sampler)
+        QRhiShaderResourceBinding::sampledTexture(1, QRhiShaderResourceBinding::FragmentStage, m_tex, m_sampler),
+        QRhiShaderResourceBinding::uniformBuffer(2, QRhiShaderResourceBinding::FragmentStage, m_scale),
+
     });
     m_srb->build();
 
@@ -195,6 +202,9 @@ void meshrenderer::releaseResources()
 
     delete m_vbuf;
     m_vbuf = nullptr;
+
+    delete m_scale;
+    m_scale = nullptr;
 }
 
 void meshrenderer::queueResourceUpdates(QRhiResourceUpdateBatch *resourceUpdates)
@@ -205,6 +215,11 @@ void meshrenderer::queueResourceUpdates(QRhiResourceUpdateBatch *resourceUpdates
     if (!m_vbufReady) {
         m_vbufReady = true;
         resourceUpdates->uploadStaticBuffer(m_vbuf, d.values.data());
+
+        std::vector<float> scale(1);
+        scale[0] = 1.2;
+
+        resourceUpdates->updateDynamicBuffer(m_scale, 0, 8, &scale);
         qint32 flip = 0;
         resourceUpdates->updateDynamicBuffer(m_ubuf, 64, 4, &flip);
     }
@@ -248,7 +263,7 @@ void meshrenderer::queueDraw(QRhiCommandBuffer *cb, const QSize &outputSizeInPix
     cb->setShaderResources();
     const QRhiCommandBuffer::VertexInput vbufBindings[] = {
         { m_vbuf, 0 },
-        { m_vbuf, d.vertices_length * 3 * sizeof(float) }
+        { m_vbuf, d.vertices_length * sizeof(float) }
     };
     cb->setVertexInput(0, 2, vbufBindings);
     cb->draw(d.vertices_length/3);
